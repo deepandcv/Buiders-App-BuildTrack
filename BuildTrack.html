@@ -1,0 +1,1490 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BuildLedger India</title>
+<style>
+:root {
+  --ink:#172b2b;
+  --muted:#718080;
+  --green:#187c68;
+  --green-dark:#116552;
+  --green-light:#e8f4f0;
+  --line:#e4ece9;
+  --paper:#ffffff;
+  --bg:#f3f7f5;
+  --nav:#102c2b;
+  --amber:#b87012;
+  --red:#b44343;
+  --shadow:0 8px 28px rgba(20,50,45,.06);
+}
+* { box-sizing:border-box; }
+body {
+  margin:0;
+  color:var(--ink);
+  font-family:Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
+  background:var(--bg);
+}
+button, input, select, textarea { font:inherit; }
+button { cursor:pointer; }
+.app-shell {
+  min-height:100vh;
+  display:grid;
+  grid-template-columns:248px minmax(0,1fr);
+}
+.sidebar {
+  background:var(--nav);
+  color:#eaf4f1;
+  padding:24px 16px;
+  display:flex;
+  flex-direction:column;
+  gap:26px;
+}
+.brand {
+  display:flex;
+  align-items:center;
+  gap:11px;
+  padding:0 10px;
+}
+.brand-mark {
+  width:38px;height:38px;border-radius:12px;
+  display:grid;place-items:center;
+  color:#fff;background:#248a72;font-weight:900;font-size:19px;
+}
+.brand-title { font-weight:800;letter-spacing:-.3px;font-size:16px; }
+.brand-subtitle { color:#a8c4bd;font-size:11px;margin-top:2px; }
+.nav-label {
+  padding:0 11px;
+  margin:0 0 8px;
+  color:#8ca9a2;
+  font-size:10px;
+  font-weight:800;
+  text-transform:uppercase;
+  letter-spacing:1.2px;
+}
+.nav-list { display:flex;flex-direction:column;gap:4px; }
+.nav-link {
+  border:0;background:transparent;color:#c9dad5;
+  text-align:left;width:100%;padding:10px 11px;border-radius:9px;
+  display:flex;align-items:center;gap:11px;font-size:13px;font-weight:600;
+}
+.nav-link:hover { background:rgba(255,255,255,.08);color:white; }
+.nav-link.active { background:#1b6458;color:#fff; }
+.nav-icon { width:18px;text-align:center;font-size:15px;opacity:.95; }
+.sidebar-foot {
+  margin-top:auto;padding:12px 10px 0;border-top:1px solid rgba(255,255,255,.12);
+  color:#a8c4bd;font-size:11px;line-height:1.55;
+}
+.main-wrap { min-width:0; }
+.topbar {
+  height:72px;background:#fff;border-bottom:1px solid var(--line);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 30px;gap:16px;
+}
+.topbar-title { font-weight:800;letter-spacing:-.3px;font-size:17px; }
+.topbar-sub { color:var(--muted);font-size:11px;margin-top:3px; }
+.topbar-right { display:flex;align-items:center;gap:10px; }
+.today-chip {
+  border:1px solid var(--line);background:#f9fbfa;border-radius:20px;
+  padding:8px 12px;color:#536764;font-size:12px;font-weight:650;
+}
+.content { max-width:1500px;margin:0 auto;padding:26px 30px 44px; }
+.page-head {
+  display:flex;align-items:flex-start;justify-content:space-between;
+  gap:18px;margin-bottom:21px;
+}
+.page-head h1 { margin:0;font-size:24px;letter-spacing:-.7px; }
+.page-head p { margin:6px 0 0;color:var(--muted);font-size:13px;line-height:1.55; }
+.page-actions { display:flex;gap:8px;flex-wrap:wrap; }
+.card {
+  background:var(--paper);border:1px solid var(--line);border-radius:14px;
+  box-shadow:var(--shadow);padding:19px;margin-bottom:16px;min-width:0;
+}
+.card-head {
+  display:flex;justify-content:space-between;align-items:flex-start;
+  gap:14px;margin-bottom:15px;
+}
+.card-head h2,.card h2 { margin:0;font-size:15px;letter-spacing:-.2px; }
+.card-head p { margin:5px 0 0;color:var(--muted);font-size:12px;line-height:1.5; }
+.kpi-grid { display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px;margin-bottom:16px; }
+.kpi {
+  background:#fff;border:1px solid var(--line);border-radius:13px;
+  box-shadow:var(--shadow);padding:16px;min-width:0;
+}
+.kpi-top { display:flex;align-items:center;justify-content:space-between;gap:8px; }
+.kpi-label { color:var(--muted);font-size:11px;font-weight:700; }
+.kpi-icon {
+  width:30px;height:30px;border-radius:9px;background:var(--green-light);
+  display:grid;place-items:center;color:var(--green);font-size:15px;
+}
+.kpi-value { font-weight:850;font-size:23px;letter-spacing:-.7px;margin-top:10px; }
+.kpi-note { color:var(--muted);font-size:11px;margin-top:4px; }
+.grid-2 { display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px; }
+.grid-3 { display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px; }
+.form-grid { display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px; }
+.field { display:flex;flex-direction:column;gap:6px;min-width:0; }
+.field > span { color:#4e6260;font-weight:700;font-size:11px; }
+.field input,.field select,.field textarea {
+  width:100%;min-width:0;border:1px solid #dce6e2;background:#fff;color:var(--ink);
+  padding:10px 11px;border-radius:8px;outline:none;font-size:13px;
+}
+.field input:focus,.field select:focus,.field textarea:focus {
+  border-color:#53a28e;box-shadow:0 0 0 3px rgba(24,124,104,.10);
+}
+.field textarea { min-height:75px;resize:vertical; }
+.span-all { grid-column:1/-1; }
+.form-footer {
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  margin-top:15px;padding-top:14px;border-top:1px solid #edf1ef;flex-wrap:wrap;
+}
+.form-note { color:var(--muted);font-size:11px;line-height:1.5; }
+.btn {
+  border:1px solid transparent;border-radius:8px;padding:9px 13px;
+  font-size:12px;font-weight:750;display:inline-flex;align-items:center;
+  justify-content:center;gap:7px;white-space:nowrap;
+}
+.btn-primary { background:var(--green);color:#fff; }
+.btn-primary:hover { background:var(--green-dark); }
+.btn-outline { background:#fff;border-color:#dce6e2;color:#405653; }
+.btn-outline:hover { background:#f5f9f7; }
+.btn-soft { background:var(--green-light);color:var(--green-dark); }
+.btn-danger { background:#fff4f3;border-color:#f0d6d3;color:var(--red); }
+.btn-sm { padding:7px 10px;font-size:11px; }
+.segmented { display:inline-flex;padding:3px;background:#f0f5f3;border-radius:9px;gap:2px;flex-wrap:wrap; }
+.segmented button {
+  border:0;background:transparent;color:#637572;border-radius:7px;
+  padding:7px 10px;font-size:11px;font-weight:750;
+}
+.segmented button.active { background:#fff;color:var(--green-dark);box-shadow:0 1px 4px rgba(30,60,50,.1); }
+.table-wrap { width:100%;overflow:auto;border:1px solid var(--line);border-radius:10px; }
+table { width:100%;border-collapse:collapse;min-width:700px;background:#fff; }
+th {
+  background:#f7faf8;color:#657774;font-size:10px;text-align:left;
+  text-transform:uppercase;letter-spacing:.55px;font-weight:800;
+  padding:11px 12px;border-bottom:1px solid var(--line);white-space:nowrap;
+}
+td { font-size:12px;padding:11px 12px;border-bottom:1px solid #edf1ef;vertical-align:middle; }
+tbody tr:last-child td { border-bottom:0; }
+tbody tr:hover { background:#fbfdfc; }
+.td-main { font-weight:750;color:#263c39; }
+.td-sub { color:var(--muted);font-size:10px;margin-top:3px; }
+.num-cell { font-variant-numeric:tabular-nums;white-space:nowrap; }
+.badge {
+  display:inline-flex;align-items:center;border-radius:20px;padding:4px 8px;
+  font-size:10px;font-weight:800;background:#eff4f2;color:#50635f;white-space:nowrap;
+}
+.badge-green { background:#e8f5ef;color:#18745e; }
+.badge-amber { background:#fff5e5;color:#9b650e; }
+.badge-red { background:#fff0ef;color:#ad4340; }
+.empty-state {
+  padding:27px 15px;text-align:center;color:var(--muted);font-size:12px;
+}
+.empty-icon { font-size:22px;margin-bottom:6px; }
+.notice {
+  padding:11px 13px;border:1px solid #dcebe5;background:#f5fbf8;
+  color:#536b64;border-radius:9px;font-size:11px;line-height:1.55;margin-bottom:14px;
+}
+.tabs-row { display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap; }
+.period-summary { display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:13px 0; }
+.summary-chip { background:#f8fbf9;border:1px solid var(--line);border-radius:9px;padding:11px 12px; }
+.summary-chip span { display:block;color:var(--muted);font-size:10px;font-weight:700; }
+.summary-chip strong { display:block;margin-top:5px;font-size:16px;letter-spacing:-.3px; }
+.week-grid { display:grid;grid-template-columns:repeat(7,minmax(95px,1fr));gap:8px;margin:14px 0;overflow:auto; }
+.week-day {
+  border:1px solid var(--line);border-radius:10px;background:#fff;text-align:left;
+  padding:11px;min-height:96px;color:var(--ink);
+}
+.week-day.selected { border-color:#53a28e;box-shadow:0 0 0 2px rgba(24,124,104,.1); }
+.week-day strong { display:block;font-size:11px; }
+.week-day span { display:block;color:var(--muted);font-size:10px;margin-top:7px; }
+.month-grid { display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px;margin:14px 0; }
+.month-weekday { color:var(--muted);font-size:10px;font-weight:800;text-align:center;padding:5px; }
+.month-cell {
+  min-height:70px;border:1px solid var(--line);border-radius:8px;
+  padding:7px;background:#fff;text-align:left;color:var(--ink);
+}
+.month-cell.outside { background:#f8faf9;color:#9ba9a5; }
+.month-cell.selected { border-color:#53a28e;box-shadow:0 0 0 2px rgba(24,124,104,.1); }
+.month-cell .day-num { font-size:11px;font-weight:800; }
+.month-cell small { display:block;color:var(--muted);font-size:9px;margin-top:5px;line-height:1.4; }
+.role-pills { display:flex;flex-wrap:wrap;gap:7px;margin-top:12px; }
+.role-pill { background:#f0f5f3;border-radius:20px;padding:6px 9px;font-size:10px;font-weight:700;color:#536560; }
+details.card { padding:0;overflow:hidden; }
+details.card summary { cursor:pointer;list-style:none;padding:16px 19px;font-weight:800;font-size:13px; }
+details.card summary::-webkit-details-marker { display:none; }
+details.card summary:after { content:"＋";float:right;color:var(--green); }
+details.card[open] summary:after { content:"−"; }
+.details-body { padding:0 19px 18px; }
+.rate-grid { display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px; }
+.rate-grid .field { background:#f9fbfa;border:1px solid var(--line);border-radius:9px;padding:10px; }
+.rate-grid .field input { padding:8px; }
+.attendance-estimate {
+  background:#f5fbf8;border:1px solid #dcebe5;border-radius:9px;
+  padding:10px 12px;font-size:11px;color:#536b64;
+}
+.attendance-estimate strong { color:var(--green-dark);font-size:13px;margin-left:5px; }
+.sort-row { display:flex;align-items:center;gap:8px;flex-wrap:wrap; }
+.sort-label { color:var(--muted);font-size:11px;font-weight:800; }
+.result-box {
+  border:1px solid #d8e9e1;background:#f5fbf8;border-radius:12px;padding:16px;
+}
+.result-box h3 { margin:0 0 11px;font-size:13px; }
+.result-main { font-size:24px;font-weight:850;letter-spacing:-.6px;color:var(--green-dark); }
+.result-caption { color:var(--muted);font-size:11px;margin-top:4px; }
+.result-list { display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:13px; }
+.result-item { background:#fff;border:1px solid var(--line);border-radius:8px;padding:10px; }
+.result-item span { display:block;color:var(--muted);font-size:10px; }
+.result-item strong { display:block;margin-top:4px;font-size:13px; }
+.footer-note { color:var(--muted);font-size:10px;line-height:1.5;margin:10px 2px; }
+.toast {
+  position:fixed;right:22px;bottom:22px;z-index:10;background:#153d35;color:#fff;
+  padding:12px 16px;border-radius:10px;box-shadow:0 8px 25px rgba(0,0,0,.18);
+  font-size:12px;font-weight:700;max-width:360px;
+}
+.directory-list { display:flex;flex-wrap:wrap;gap:7px;margin-top:11px; }
+.directory-item { padding:6px 9px;border-radius:20px;background:#f1f6f4;color:#52645f;font-size:10px;font-weight:700; }
+.quick-links { display:flex;gap:8px;flex-wrap:wrap; }
+@media (max-width:1100px) {
+  .kpi-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .form-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .rate-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+}
+@media (max-width:800px) {
+  .app-shell { grid-template-columns:1fr; }
+  .sidebar { padding:12px 12px 8px;gap:11px; }
+  .brand { padding:0 4px; }
+  .sidebar .nav-label,.sidebar-foot { display:none; }
+  .nav-list { flex-direction:row;overflow-x:auto;padding-bottom:3px; }
+  .nav-link { width:auto;white-space:nowrap;padding:9px 11px; }
+  .topbar { height:64px;padding:0 16px; }
+  .content { padding:20px 16px 35px; }
+}
+@media (max-width:600px) {
+  .page-head { flex-direction:column; }
+  .page-head h1 { font-size:21px; }
+  .grid-2,.grid-3 { grid-template-columns:1fr; }
+  .form-grid { grid-template-columns:1fr; }
+  .field.span-all { grid-column:auto; }
+  .kpi-grid { grid-template-columns:repeat(2,minmax(0,1fr));gap:9px; }
+  .kpi { padding:13px; }
+  .kpi-value { font-size:20px; }
+  .period-summary { grid-template-columns:1fr; }
+  .rate-grid { grid-template-columns:1fr; }
+  .topbar-right .today-chip { display:none; }
+  .month-cell { min-height:55px;padding:5px; }
+  .month-cell small { font-size:8px; }
+}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+const STORAGE_KEY = "buildledger-india-v1";
+const DEFAULTS = {
+  sites: [],
+  clients: [],
+  vendors: [],
+  contractors: [],
+  roles: [
+    "General Labour", "Mason", "Helper", "Bar Bender", "Carpenter",
+    "Electrician", "Site Engineer", "Site Supervisor", "Safety Officer"
+  ],
+  roleRates: {},
+  attendance: [],
+  progress: [],
+  expenses: [],
+  accounts: [],
+  stock: [],
+  mbook: []
+};
+
+function loadDatabase() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null");
+    if (!saved) return JSON.parse(JSON.stringify(DEFAULTS));
+    return {
+      ...JSON.parse(JSON.stringify(DEFAULTS)),
+      ...saved,
+      sites: Array.isArray(saved.sites) ? saved.sites : [],
+      clients: Array.isArray(saved.clients) ? saved.clients : [],
+      vendors: Array.isArray(saved.vendors) ? saved.vendors : [],
+      contractors: Array.isArray(saved.contractors) ? saved.contractors : [],
+      roles: Array.isArray(saved.roles) ? saved.roles : DEFAULTS.roles.slice(),
+      roleRates: saved.roleRates || {},
+      attendance: Array.isArray(saved.attendance) ? saved.attendance : [],
+      progress: Array.isArray(saved.progress) ? saved.progress : [],
+      expenses: Array.isArray(saved.expenses) ? saved.expenses : [],
+      accounts: Array.isArray(saved.accounts) ? saved.accounts : [],
+      stock: Array.isArray(saved.stock) ? saved.stock : [],
+      mbook: Array.isArray(saved.mbook) ? saved.mbook : []
+    };
+  } catch {
+    return JSON.parse(JSON.stringify(DEFAULTS));
+  }
+}
+let db = loadDatabase();
+
+function saveDatabase() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(db)); }
+  catch (e) { console.warn("Could not save app data", e); }
+}
+function uid() {
+  return (globalThis.crypto && crypto.randomUUID)
+    ? crypto.randomUUID()
+    : "id-" + Date.now() + "-" + Math.random().toString(16).slice(2);
+}
+function esc(value) {
+  return String(value ?? "").replace(/[&<>"']/g, c => ({
+    "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;"
+  }[c]));
+}
+function num(value) {
+  const n = Number(value);
+  return Number.isFinite(n) ? n : 0;
+}
+function todayISO() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+}
+function parseISO(value) {
+  if (!value) return new Date();
+  const [y,m,d] = value.split("-").map(Number);
+  return new Date(y, m-1, d);
+}
+function toISO(d) {
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+}
+function addDays(d, days) {
+  const r = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  r.setDate(r.getDate() + days);
+  return r;
+}
+function mondayOf(d) {
+  const r = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  const dow = r.getDay();
+  r.setDate(r.getDate() + (dow === 0 ? -6 : 1-dow));
+  return r;
+}
+function dateLabel(value, options={day:"2-digit",month:"short",year:"numeric"}) {
+  if (!value) return "—";
+  return new Intl.DateTimeFormat("en-IN", options).format(parseISO(value));
+}
+function money(value) {
+  return new Intl.NumberFormat("en-IN", {
+    style:"currency", currency:"INR", maximumFractionDigits:2
+  }).format(num(value));
+}
+function fmt(value, digits=2) {
+  return new Intl.NumberFormat("en-IN", {maximumFractionDigits:digits}).format(num(value));
+}
+function remember(listName, value) {
+  const clean = String(value || "").trim();
+  if (!clean || !Array.isArray(db[listName])) return;
+  if (!db[listName].some(x => x.toLowerCase() === clean.toLowerCase())) db[listName].push(clean);
+}
+function uniqueValues(values) {
+  return [...new Set(values.filter(Boolean).map(v => String(v).trim()))]
+    .sort((a,b) => a.localeCompare(b));
+}
+
+let activeView = "dashboard";
+let attendanceMode = "role";
+let attendanceCalendar = "day";
+let attendanceDate = todayISO();
+let accountTab = "receivable";
+let stockSort = "material";
+let bookGroup = "project";
+let bookFilter = "all";
+let calcTool = "concrete";
+let civilInputs = {
+  concrete:{length:"0",width:"0",depth:"0",mix:"M20"},
+  rebar:{diameter:"0",length:"0",bars:"0"},
+  brick:{length:"0",height:"0",thickness:"0"}
+};
+let civilResult = null;
+let converterDimension = "length";
+let converterFrom = "m";
+let converterTo = "ft";
+let converterValue = "0";
+let converterResult = null;
+let rightUnit = "m";
+let rightResult = null;
+let toastMessage = "";
+
+const app = document.getElementById("app");
+const titles = {
+  dashboard:"Overview",
+  attendance:"Labor & staff attendance",
+  progress:"Daily progress & out-turn",
+  expenses:"Site expenditure",
+  accounts:"Accounts",
+  stock:"Stock register",
+  mbook:"M-Book",
+  calculator:"Civil calculator",
+  converter:"Unit converter",
+  rightangle:"Right-angle marking",
+  settings:"Directories & settings"
+};
+const navItems = [
+  ["dashboard","▦","Overview"],
+  ["attendance","◷","Attendance"],
+  ["progress","↗","Daily progress"],
+  ["expenses","₹","Expenditure"],
+  ["accounts","⇄","Payables & receivables"],
+  ["stock","▤","Stock register"],
+  ["mbook","▧","M-Book"],
+  ["calculator","∑","Civil calculator"],
+  ["converter","⇄","Unit converter"],
+  ["rightangle","∟","Right-angle marking"],
+  ["settings","⚙","Directories"]
+];
+
+function fieldText(name, label, opts={}) {
+  const type = opts.type || "text";
+  const value = opts.value === undefined ? "" : String(opts.value);
+  const required = opts.required ? "required" : "";
+  const list = opts.list ? `list="${esc(opts.list)}"` : "";
+  const placeholder = opts.placeholder ? `placeholder="${esc(opts.placeholder)}"` : "";
+  const min = opts.min !== undefined ? `min="${esc(opts.min)}"` : "";
+  const step = opts.step !== undefined ? `step="${esc(opts.step)}"` : "";
+  const id = opts.id ? `id="${esc(opts.id)}"` : "";
+  const readonly = opts.readonly ? "readonly" : "";
+  const data = opts.data || "";
+  const cls = opts.wide ? " span-all" : "";
+  return `<label class="field${cls}"><span>${esc(label)}</span>
+    <input ${id} type="${esc(type)}" name="${esc(name)}" value="${esc(value)}"
+      ${required} ${list} ${placeholder} ${min} ${step} ${readonly} ${data}></label>`;
+}
+function fieldSelect(name, label, options, selected="", required=false, id="") {
+  const opts = options.map(item => typeof item === "string"
+    ? {value:item,label:item} : item);
+  return `<label class="field"><span>${esc(label)}</span>
+    <select ${id ? `id="${esc(id)}"` : ""} name="${esc(name)}" ${required ? "required" : ""}>
+      ${opts.map(o => `<option value="${esc(o.value)}" ${String(o.value)===String(selected)?"selected":""}>${esc(o.label)}</option>`).join("")}
+    </select></label>`;
+}
+function siteField(required=true, name="site", label="Site / project") {
+  return fieldText(name,label,{list:"siteOptions",required,placeholder:"Enter or choose a site"});
+}
+function clientField(required=false, name="client", label="Client") {
+  return fieldText(name,label,{list:"clientOptions",required,placeholder:"Enter or choose a client"});
+}
+function contractorField(required=false) {
+  return fieldText("contractor","Contractor / subcontractor",{
+    list:"contractorOptions",required,placeholder:"Optional for direct labor"
+  });
+}
+function renderDatalists() {
+  const list = (id, values) => `<datalist id="${id}">${uniqueValues(values)
+    .map(v => `<option value="${esc(v)}"></option>`).join("")}</datalist>`;
+  return list("siteOptions",db.sites) +
+    list("clientOptions",db.clients) +
+    list("vendorOptions",db.vendors) +
+    list("contractorOptions",db.contractors);
+}
+function button(label, action, cls="btn btn-outline", extra="") {
+  return `<button type="button" class="${cls}" data-action="${esc(action)}" ${extra}>${label}</button>`;
+}
+function kpi(label, value, note, icon) {
+  return `<div class="kpi"><div class="kpi-top"><span class="kpi-label">${esc(label)}</span>
+    <span class="kpi-icon">${icon}</span></div>
+    <div class="kpi-value">${value}</div><div class="kpi-note">${esc(note)}</div></div>`;
+}
+function emptyState(text) {
+  return `<div class="empty-state"><div class="empty-icon">◌</div>${esc(text)}</div>`;
+}
+function header(title, description, actions="") {
+  return `<div class="page-head"><div><h1>${esc(title)}</h1><p>${esc(description)}</p></div>
+    ${actions ? `<div class="page-actions">${actions}</div>` : ""}</div>`;
+}
+function navMarkup() {
+  return navItems.map(([key,icon,label]) =>
+    `<button class="nav-link ${activeView===key?"active":""}" data-view="${key}">
+      <span class="nav-icon">${icon}</span><span>${label}</span></button>`
+  ).join("");
+}
+function render() {
+  app.innerHTML = `<div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand"><div class="brand-mark">B</div><div>
+        <div class="brand-title">BuildLedger</div><div class="brand-subtitle">Construction operations</div>
+      </div></div>
+      <div><div class="nav-label">Workspace</div><nav class="nav-list">${navMarkup()}</nav></div>
+      <div class="sidebar-foot">Saved in this browser on this device.<br>Use Backup to download a JSON copy.</div>
+    </aside>
+    <div class="main-wrap">
+      <header class="topbar">
+        <div><div class="topbar-title">${esc(titles[activeView] || "BuildLedger")}</div>
+          <div class="topbar-sub">Sites · labor · materials · accounts</div></div>
+        <div class="topbar-right">
+          <span class="today-chip">${dateLabel(todayISO(),{weekday:"short",day:"2-digit",month:"short",year:"numeric"})}</span>
+          <button class="btn btn-outline btn-sm" data-action="backup">⬇ Backup</button>
+        </div>
+      </header>
+      <main class="content">${renderPage()}</main>
+    </div>
+  </div>${renderDatalists()}${toastMessage ? `<div class="toast">${esc(toastMessage)}</div>` : ""}`;
+}
+function renderPage() {
+  switch(activeView) {
+    case "attendance": return renderAttendance();
+    case "progress": return renderProgress();
+    case "expenses": return renderExpenses();
+    case "accounts": return renderAccounts();
+    case "stock": return renderStock();
+    case "mbook": return renderMBook();
+    case "calculator": return renderCalculator();
+    case "converter": return renderConverter();
+    case "rightangle": return renderRightAngle();
+    case "settings": return renderSettings();
+    default: return renderDashboard();
+  }
+}
+
+/* Overview */
+function renderDashboard() {
+  const today = todayISO();
+  const todaysAttendance = db.attendance.filter(r => r.date === today);
+  const people = todaysAttendance.reduce((s,r) => s + num(r.workers),0);
+  const laborShifts = todaysAttendance.reduce((s,r) => s + num(r.workers)*num(r.shifts),0);
+  const expensesToday = db.expenses.filter(r => r.date === today).reduce((s,r) => s+num(r.amount),0);
+  const ar = db.accounts.filter(a => a.type === "receivable").reduce((s,a)=>s+Math.max(0,num(a.amount)-num(a.paid)),0);
+  const ap = db.accounts.filter(a => a.type === "payable").reduce((s,a)=>s+Math.max(0,num(a.amount)-num(a.paid)),0);
+  const stockValue = db.stock.reduce((s,r)=>s+(num(r.opening)+num(r.received)-num(r.issued))*num(r.unitCost),0);
+  const todaysExpenses = db.expenses.filter(r => r.date === today);
+  const siteTotals = {};
+  todaysExpenses.forEach(r => { siteTotals[r.site || "Unassigned"] = (siteTotals[r.site || "Unassigned"] || 0) + num(r.amount); });
+  const recent = db.progress.slice().sort((a,b)=>(b.date||"").localeCompare(a.date||"")).slice(0,5);
+
+  return `${header("Construction overview","A quick view of attendance, site spending, outstanding accounts and inventory.",
+    `<button class="btn btn-primary" data-view="attendance">＋ Attendance</button>
+     <button class="btn btn-outline" data-view="expenses">＋ Expense</button>`)}
+    <div class="kpi-grid">
+      ${kpi("People recorded today",fmt(people,0),"Labor and staff attendance","◷")}
+      ${kpi("Labor-shifts today",fmt(laborShifts,0),"People × shifts worked","⇧")}
+      ${kpi("Today's expenditure",money(expensesToday),"Across all sites", "₹")}
+      ${kpi("Receivable outstanding",money(ar),"Due from clients","↗")}
+      ${kpi("Payable outstanding",money(ap),"Due to vendors and labor","↙")}
+      ${kpi("Stock book value",money(stockValue),"Based on on-hand quantity × unit cost","▤")}
+      ${kpi("Progress reports",fmt(db.progress.length,0),"Reports recorded in the register","▧")}
+      ${kpi("Stock lines",fmt(db.stock.length,0),"Materials and tools tracked","▣")}
+    </div>
+    <div class="grid-2">
+      <section class="card">
+        <div class="card-head"><div><h2>Today's expenditure by site</h2>
+          <p>Daily amounts entered for ${dateLabel(today)}.</p></div></div>
+        ${Object.keys(siteTotals).length ? `<div class="table-wrap"><table><thead><tr><th>Site</th><th>Entries</th><th>Total</th></tr></thead><tbody>
+          ${Object.entries(siteTotals).map(([site,total])=>`<tr><td class="td-main">${esc(site)}</td>
+            <td>${todaysExpenses.filter(e=>(e.site||"Unassigned")===site).length}</td><td class="num-cell">${money(total)}</td></tr>`).join("")}
+        </tbody></table></div>` : emptyState("No expenditure has been recorded today.")}
+      </section>
+      <section class="card">
+        <div class="card-head"><div><h2>Recent daily progress</h2><p>Latest saved out-turn reports.</p></div>
+          <button class="btn btn-outline btn-sm" data-view="progress">Open reports</button></div>
+        ${recent.length ? `<div class="table-wrap"><table><thead><tr><th>Date</th><th>Site</th><th>Work</th><th>Out-turn</th></tr></thead><tbody>
+          ${recent.map(r=>`<tr><td>${dateLabel(r.date)}</td><td>${esc(r.site)}</td>
+            <td><div class="td-main">${esc(r.activity)}</div><div class="td-sub">${esc(r.role||"")}</div></td>
+            <td class="num-cell">${fmt(r.quantity,2)} ${esc(r.unit||"")}</td></tr>`).join("")}
+        </tbody></table></div>` : emptyState("No progress reports yet.")}
+      </section>
+    </div>
+    <section class="card">
+      <div class="card-head"><div><h2>Quick access</h2><p>Open the registers used most often on site.</p></div></div>
+      <div class="quick-links">
+        <button class="btn btn-soft" data-view="mbook">Open M-Book</button>
+        <button class="btn btn-outline" data-view="stock">Stock register</button>
+        <button class="btn btn-outline" data-view="accounts">Accounts</button>
+        <button class="btn btn-outline" data-view="calculator">Civil calculator</button>
+        <button class="btn btn-outline" data-view="rightangle">Right-angle marking</button>
+      </div>
+    </section>`;
+}
+
+/* Attendance */
+function modeName(mode) {
+  return mode === "role" ? "By Role" : mode === "contractor" ? "By Contractor / Subcontractor" : "By Name";
+}
+function roleOptions(optional=false) {
+  const list = db.roles.map(r=>({value:r,label:r}));
+  if (optional) list.unshift({value:"",label:"Not specified"});
+  return list;
+}
+function rangeAttendance() {
+  const selected = parseISO(attendanceDate);
+  let start, end;
+  if (attendanceCalendar === "day") {
+    start = selected; end = selected;
+  } else if (attendanceCalendar === "week") {
+    start = mondayOf(selected); end = addDays(start,6);
+  } else {
+    start = new Date(selected.getFullYear(),selected.getMonth(),1);
+    end = new Date(selected.getFullYear(),selected.getMonth()+1,0);
+  }
+  const startISO = toISO(start), endISO = toISO(end);
+  return {
+    start,startISO,end,endISO,
+    rows:db.attendance.filter(r=>r.date>=startISO && r.date<=endISO)
+      .sort((a,b)=>(a.date||"").localeCompare(b.date||""))
+  };
+}
+function renderAttendanceRows(rows) {
+  if (!rows.length) return emptyState("No attendance entries in this period.");
+  return `<div class="table-wrap"><table><thead><tr>
+    <th>Date</th><th>Site</th><th>Category</th><th>Entry</th><th>People</th>
+    <th>Shifts / person</th><th>Labor-shifts</th><th>Rate / shift</th><th>Billing</th>
+    </tr></thead><tbody>${rows.map(r=>{
+      let entry = r.mode==="role" ? (r.role||"—")
+        : r.mode==="contractor" ? `${r.contractor||"Contractor"}${r.role?" · "+r.role:""}`
+        : (r.name||"—");
+      if (r.mode==="role" && r.contractor) entry += ` <span class="td-sub">· ${esc(r.contractor)}</span>`;
+      return `<tr><td>${dateLabel(r.date)}</td><td class="td-main">${esc(r.site||"—")}</td>
+        <td><span class="badge">${esc(modeName(r.mode))}</span></td><td class="td-main">${entry}</td>
+        <td class="num-cell">${fmt(r.workers,0)}</td><td class="num-cell">${fmt(r.shifts,2)}</td>
+        <td class="num-cell">${fmt(num(r.workers)*num(r.shifts),2)}</td>
+        <td class="num-cell">${money(r.rate)}</td><td class="num-cell">${money(r.amount)}</td></tr>`;
+    }).join("")}</tbody></table></div>`;
+}
+function renderAttendanceCalendar() {
+  const selected = parseISO(attendanceDate);
+  if (attendanceCalendar === "day") {
+    return `<div class="notice"><strong>Selected day:</strong> ${dateLabel(attendanceDate)}. Choose a different date above to review or enter another day.</div>`;
+  }
+  if (attendanceCalendar === "week") {
+    const start = mondayOf(selected);
+    const dayNames = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+    return `<div class="week-grid">${dayNames.map((name,i)=>{
+      const d = addDays(start,i), iso = toISO(d);
+      const rows = db.attendance.filter(r=>r.date===iso);
+      const headcount = rows.reduce((s,r)=>s+num(r.workers),0);
+      const bill = rows.reduce((s,r)=>s+num(r.amount),0);
+      return `<button class="week-day ${iso===attendanceDate?"selected":""}" data-att-date="${iso}">
+        <strong>${name} · ${d.getDate()}</strong><span>${fmt(headcount,0)} people</span>
+        <span>${money(bill)}</span></button>`;
+    }).join("")}</div>`;
+  }
+  const first = new Date(selected.getFullYear(),selected.getMonth(),1);
+  const gridStart = mondayOf(first);
+  const days = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+  const cells = Array.from({length:42},(_,i)=>addDays(gridStart,i));
+  return `<div class="month-grid">${days.map(d=>`<div class="month-weekday">${d}</div>`).join("")}
+    ${cells.map(d=>{
+      const iso=toISO(d), rows=db.attendance.filter(r=>r.date===iso);
+      const workers=rows.reduce((s,r)=>s+num(r.workers),0);
+      const bill=rows.reduce((s,r)=>s+num(r.amount),0);
+      const outside=d.getMonth()!==selected.getMonth();
+      return `<button class="month-cell ${outside?"outside":""} ${iso===attendanceDate?"selected":""}" data-att-date="${iso}">
+        <span class="day-num">${d.getDate()}</span>
+        <small>${workers ? `${fmt(workers,0)} people · ${money(bill)}` : "—"}</small>
+      </button>`;
+    }).join("")}</div>`;
+}
+function renderAttendance() {
+  const period = rangeAttendance();
+  const workers = period.rows.reduce((s,r)=>s+num(r.workers),0);
+  const shifts = period.rows.reduce((s,r)=>s+num(r.workers)*num(r.shifts),0);
+  const billing = period.rows.reduce((s,r)=>s+num(r.amount),0);
+  const selectedRole = db.roles[0] || "";
+  const selectedRate = db.roleRates[selectedRole] || 0;
+  const optionalRole = attendanceMode !== "role";
+  const saturday = toISO(addDays(mondayOf(parseISO(attendanceDate)),5));
+  const modeButtons = [
+    ["role","By Role"],["contractor","By Contractor / Subcontractor"],["name","By Name"]
+  ].map(([key,label])=>`<button class="${attendanceMode===key?"active":""}" data-att-mode="${key}">${label}</button>`).join("");
+
+  return `${header("Labor & staff attendance",
+      "Record daily attendance by role, contractor or individual. By Role is the default and does not ask for labor names.",
+      `<button class="btn btn-outline" data-action="create-billings">Create Saturday billings</button>`)}
+    <div class="notice"><strong>Weekly labor billing:</strong> attendance is grouped for the selected Monday–Sunday week and posted as accounts payable dated Saturday (${dateLabel(saturday)}). Set a rate per shift to calculate a bill.</div>
+    <section class="card">
+      <div class="card-head"><div><h2>Attendance entry</h2><p>People and shift fields start at 0. In By Role mode, no labor-name field is shown.</p></div>
+        <div class="segmented">${modeButtons}</div>
+      </div>
+      <form id="attendanceForm">
+        <div class="form-grid">
+          ${fieldText("date","Date",{type:"date",value:attendanceDate,required:true})}
+          ${siteField(true)}
+          ${attendanceMode==="name" ? fieldText("name","Labor / staff name",{required:true,placeholder:"Enter name"}) : ""}
+          ${attendanceMode==="role" || attendanceMode==="name"
+            ? fieldSelect("role","Role / trade",roleOptions(optionalRole),selectedRole,attendanceMode==="role","attRole")
+            : fieldSelect("role","Role / trade (optional)",roleOptions(true),"",false,"attRole")}
+          ${contractorField(attendanceMode==="contractor")}
+          ${attendanceMode==="name"
+            ? `<label class="field"><span>People</span><input type="number" value="1" readonly></label>`
+            : fieldText("workers","Number of people",{type:"number",value:"0",min:"0",step:"1",required:true,data:'data-att-live="1"'})}
+          ${fieldText("shifts","Shifts worked per person",{type:"number",value:"0",min:"0",step:"0.25",required:true,data:'data-att-live="1"'})}
+          ${fieldText("rate","Billing rate per shift (₹)",{type:"number",value:String(selectedRate),min:"0",step:"0.01",required:true,data:'data-att-live="1"',id:"attRate"})}
+        </div>
+        <div class="form-footer">
+          <div class="attendance-estimate">Estimated entry billing:<strong id="attendanceEstimate">${money(0)}</strong></div>
+          <button class="btn btn-primary" type="submit">＋ Save attendance</button>
+        </div>
+      </form>
+    </section>
+    <details class="card">
+      <summary>Manage roles and standard shift billing rates</summary>
+      <div class="details-body">
+        <p class="form-note">Create roles for labor or staff. Standard rates are suggestions for new attendance entries; each entry can use a different rate.</p>
+        <form id="roleForm" class="form-grid" style="margin-top:12px">
+          ${fieldText("roleName","New role",{required:true,placeholder:"e.g. Plumber"})}
+          ${fieldText("standardRate","Standard rate per shift (₹)",{type:"number",value:"0",min:"0",step:"0.01"})}
+          <div class="field" style="justify-content:end"><span>&nbsp;</span><button class="btn btn-primary" type="submit">＋ Add role</button></div>
+        </form>
+        <form id="ratesForm">
+          <div class="rate-grid" style="margin-top:14px">${db.roles.map((r,i)=>
+            `<label class="field"><span>${esc(r)} · ₹ / shift</span>
+              <input name="rate_${i}" type="number" min="0" step="0.01" value="${esc(db.roleRates[r]||0)}"></label>`
+          ).join("")}</div>
+          <div class="form-footer"><span class="form-note">Used as the default rate when selecting a role.</span>
+            <button class="btn btn-outline" type="submit">Save standard rates</button></div>
+        </form>
+      </div>
+    </details>
+    <section class="card">
+      <div class="tabs-row">
+        <div><h2>Attendance calendar</h2><p class="form-note">Switch between daily, weekly and monthly views.</p></div>
+        <div class="segmented">
+          ${["day","week","month"].map(v=>`<button class="${attendanceCalendar===v?"active":""}" data-calendar="${v}">${v[0].toUpperCase()+v.slice(1)}</button>`).join("")}
+        </div>
+      </div>
+      <div class="form-grid" style="margin-top:13px;grid-template-columns:minmax(180px,260px) 1fr">
+        ${fieldText("calendarDate","Choose date",{type:"date",value:attendanceDate,id:"attendanceDate"})}
+        <div class="form-note" style="align-self:end;padding-bottom:10px">
+          ${attendanceCalendar==="week" ? `Week: ${dateLabel(period.startISO)} – ${dateLabel(period.endISO)}`
+            : attendanceCalendar==="month" ? dateLabel(attendanceDate,{month:"long",year:"numeric"})
+            : dateLabel(attendanceDate)}
+        </div>
+      </div>
+      <div class="period-summary">
+        <div class="summary-chip"><span>People recorded</span><strong>${fmt(workers,0)}</strong></div>
+        <div class="summary-chip"><span>Labor-shifts</span><strong>${fmt(shifts,2)}</strong></div>
+        <div class="summary-chip"><span>Recorded labor billing</span><strong>${money(billing)}</strong></div>
+      </div>
+      ${renderAttendanceCalendar()}
+      <div class="card-head" style="margin-top:18px;margin-bottom:10px"><div><h2>Entries in this period</h2>
+        <p>${dateLabel(period.startISO)} – ${dateLabel(period.endISO)}</p></div></div>
+      ${renderAttendanceRows(period.rows)}
+    </section>`;
+}
+
+/* Daily progress */
+function renderProgress() {
+  const rows = db.progress.slice().sort((a,b)=>(b.date||"").localeCompare(a.date||""));
+  return `${header("Daily progress & labor out-turn","Record completed quantities against targets for each project, client, work item and trade.",
+    `<button class="btn btn-outline" data-view="mbook">Open M-Book</button>`)}
+    <section class="card">
+      <div class="card-head"><div><h2>Daily progress report</h2><p>Use one line per work item or trade out-turn.</p></div></div>
+      <form id="progressForm"><div class="form-grid">
+        ${fieldText("date","Report date",{type:"date",value:todayISO(),required:true})}
+        ${siteField(true)}
+        ${clientField(true)}
+        ${fieldText("activity","Work item / activity",{required:true,placeholder:"e.g. First-floor brickwork"})}
+        ${fieldSelect("role","Trade / role",[{value:"",label:"Select role (optional)"},...roleOptions()], "",false)}
+        ${fieldSelect("unit","Output unit",["m³","m²","m","Nos","kg","tonne","bags"],"m³",true)}
+        ${fieldText("quantity","Completed out-turn",{type:"number",value:"0",min:"0",step:"0.001",required:true})}
+        ${fieldText("target","Daily target",{type:"number",value:"0",min:"0",step:"0.001"})}
+        ${fieldText("workers","Labor / staff assigned",{type:"number",value:"0",min:"0",step:"1"})}
+        ${fieldText("notes","Remarks",{placeholder:"Optional notes",wide:true})}
+      </div><div class="form-footer"><span class="form-note">Quantities and labor counts start at 0.</span>
+        <button class="btn btn-primary" type="submit">＋ Save progress report</button></div></form>
+    </section>
+    <section class="card"><div class="card-head"><div><h2>Progress register</h2><p>${rows.length} report${rows.length===1?"":"s"} recorded.</p></div></div>
+      ${rows.length ? `<div class="table-wrap"><table><thead><tr>
+        <th>Date</th><th>Site</th><th>Client</th><th>Work item / trade</th><th>Completed</th><th>Target</th><th>Progress</th><th>Labor</th><th>Remarks</th>
+      </tr></thead><tbody>${rows.map(r=>{
+        const percent=num(r.target)>0 ? Math.min(100,num(r.quantity)/num(r.target)*100) : null;
+        return `<tr><td>${dateLabel(r.date)}</td><td class="td-main">${esc(r.site)}</td><td>${esc(r.client)}</td>
+          <td><div class="td-main">${esc(r.activity)}</div><div class="td-sub">${esc(r.role||"")}</div></td>
+          <td class="num-cell">${fmt(r.quantity,3)} ${esc(r.unit)}</td><td class="num-cell">${fmt(r.target,3)} ${esc(r.unit)}</td>
+          <td>${percent===null?"—":`${fmt(percent,1)}%`}</td><td class="num-cell">${fmt(r.workers,0)}</td><td>${esc(r.notes||"—")}</td></tr>`;
+      }).join("")}</tbody></table></div>` : emptyState("No progress reports yet. Add a report above.")}</section>`;
+}
+
+/* Expenditure */
+const EXPENSE_CATEGORIES = ["Labor","Materials","Fuel","Equipment","Transport","Subcontract","Permits","Other"];
+function renderExpenses() {
+  const rows = db.expenses.slice().sort((a,b)=>(b.date||"").localeCompare(a.date||""));
+  const todayTotal = db.expenses.filter(e=>e.date===todayISO()).reduce((s,e)=>s+num(e.amount),0);
+  const allTotal = db.expenses.reduce((s,e)=>s+num(e.amount),0);
+  return `${header("Site expenditure","Log daily spending by site, client, category and supplier.")}
+    <div class="kpi-grid">
+      ${kpi("Today's expenditure",money(todayTotal),"All sites and categories","₹")}
+      ${kpi("Recorded expenditure",money(allTotal),"All saved expense entries","▤")}
+      ${kpi("Expense entries",fmt(db.expenses.length,0),"Register lines","▧")}
+      ${kpi("Sites with entries",fmt(new Set(db.expenses.map(e=>e.site).filter(Boolean)).size,0),"Distinct sites","⌂")}
+    </div>
+    <section class="card"><div class="card-head"><div><h2>New daily expense</h2><p>Enter 0 for an amount not yet known; all amount fields start at 0.</p></div></div>
+      <form id="expenseForm"><div class="form-grid">
+        ${fieldText("date","Expense date",{type:"date",value:todayISO(),required:true})}
+        ${siteField(true)}
+        ${clientField(false)}
+        ${fieldSelect("category","Category",EXPENSE_CATEGORIES,"Materials",true)}
+        ${fieldText("vendor","Vendor / payee",{list:"vendorOptions",placeholder:"Optional"})}
+        ${fieldText("amount","Amount (₹)",{type:"number",value:"0",min:"0",step:"0.01",required:true})}
+        ${fieldText("description","Description",{placeholder:"Invoice, material or reason",wide:true})}
+      </div><div class="form-footer"><span class="form-note">Expenses are recorded separately from account payable invoices.</span>
+        <button class="btn btn-primary" type="submit">＋ Save expense</button></div></form>
+    </section>
+    <section class="card"><div class="card-head"><div><h2>Expenditure register</h2><p>Latest entries first.</p></div></div>
+      ${rows.length ? `<div class="table-wrap"><table><thead><tr><th>Date</th><th>Site</th><th>Client</th><th>Category</th><th>Vendor / payee</th><th>Description</th><th>Amount</th></tr></thead><tbody>
+        ${rows.map(e=>`<tr><td>${dateLabel(e.date)}</td><td class="td-main">${esc(e.site)}</td><td>${esc(e.client||"—")}</td>
+          <td><span class="badge">${esc(e.category)}</span></td><td>${esc(e.vendor||"—")}</td><td>${esc(e.description||"—")}</td>
+          <td class="num-cell">${money(e.amount)}</td></tr>`).join("")}
+      </tbody></table></div>` : emptyState("No expenditure entries yet. Add an expense above.")}</section>`;
+}
+
+/* Accounts payable / receivable */
+function accountBalance(a) { return Math.max(0,num(a.amount)-num(a.paid)); }
+function renderAccounts() {
+  const rows = db.accounts.filter(a=>a.type===accountTab).slice().sort((a,b)=>(a.dueDate||"").localeCompare(b.dueDate||""));
+  const all = db.accounts.filter(a=>a.type===accountTab);
+  const total = all.reduce((s,a)=>s+num(a.amount),0);
+  const paid = all.reduce((s,a)=>s+num(a.paid),0);
+  const outstanding = all.reduce((s,a)=>s+accountBalance(a),0);
+  const partyLabel = accountTab==="receivable" ? "Client" : "Vendor / subcontractor";
+  const partyList = accountTab==="receivable" ? "clientOptions" : "vendorOptions";
+  const tabs = `<div class="segmented">
+    <button class="${accountTab==="receivable"?"active":""}" data-account-tab="receivable">Accounts receivable</button>
+    <button class="${accountTab==="payable"?"active":""}" data-account-tab="payable">Accounts payable</button>
+  </div>`;
+  return `${header("Accounts payable & receivable","Track invoices, client collections, vendor bills and outstanding balances.",tabs)}
+    <div class="kpi-grid">
+      ${kpi("Invoice total",money(total),"Current register view","₹")}
+      ${kpi("Paid / received",money(paid),"Recorded settlements","✓")}
+      ${kpi("Outstanding",money(outstanding),"Remaining balance","↔")}
+      ${kpi("Open items",fmt(all.filter(a=>accountBalance(a)>0).length,0),"Invoices with a balance","▤")}
+    </div>
+    <section class="card"><div class="card-head"><div><h2>New ${accountTab==="receivable"?"client invoice / receivable":"vendor bill / payable"}</h2>
+      <p>Enter each client or vendor invoice separately. New paid amount is 0.</p></div></div>
+      <form id="accountForm"><div class="form-grid">
+        ${fieldText("party",partyLabel,{list:partyList,required:true,placeholder:`Enter or choose ${partyLabel.toLowerCase()}`})}
+        ${siteField(false)}
+        ${fieldText("reference","Invoice / reference number",{placeholder:"Optional"})}
+        ${fieldText("date","Invoice date",{type:"date",value:todayISO(),required:true})}
+        ${fieldText("dueDate","Due date",{type:"date",value:todayISO(),required:true})}
+        ${fieldText("amount","Invoice amount (₹)",{type:"number",value:"0",min:"0",step:"0.01",required:true})}
+        ${fieldText("description","Description",{placeholder:"Optional invoice details",wide:true})}
+      </div><div class="form-footer"><span class="form-note">Use “Record settlement” in the register for full or partial payments.</span>
+        <button class="btn btn-primary" type="submit">＋ Add ${accountTab==="receivable"?"receivable":"payable"}</button></div></form>
+    </section>
+    <section class="card"><div class="card-head"><div><h2>${accountTab==="receivable"?"Accounts receivable":"Accounts payable"} register</h2><p>Record collections or payments against each invoice.</p></div></div>
+      ${rows.length ? `<div class="table-wrap"><table><thead><tr><th>Due date</th><th>${partyLabel}</th><th>Site</th><th>Reference / description</th><th>Invoice amount</th><th>Paid</th><th>Balance</th><th>Status</th><th></th></tr></thead><tbody>
+      ${rows.map(a=>{
+        const balance=accountBalance(a);
+        const overdue=balance>0 && a.dueDate && a.dueDate<todayISO();
+        const status=balance<=0.005?`<span class="badge badge-green">Settled</span>`
+          :overdue?`<span class="badge badge-red">Overdue</span>`:`<span class="badge badge-amber">Open</span>`;
+        return `<tr><td>${dateLabel(a.dueDate)}</td><td class="td-main">${esc(a.party)}</td><td>${esc(a.site||"—")}</td>
+          <td><div>${esc(a.reference||"—")}</div><div class="td-sub">${esc(a.description||"")}</div></td>
+          <td class="num-cell">${money(a.amount)}</td><td class="num-cell">${money(a.paid)}</td>
+          <td class="num-cell">${money(balance)}</td><td>${status}</td>
+          <td>${balance>0.005?`<button class="btn btn-outline btn-sm" data-action="settle-account" data-id="${esc(a.id)}">Record settlement</button>`:""}</td></tr>`;
+      }).join("")}</tbody></table></div>` : emptyState(`No ${accountTab==="receivable"?"receivable invoices":"payable bills"} yet.`)}</section>`;
+}
+
+/* Stock */
+function stockBalance(r) { return num(r.opening)+num(r.received)-num(r.issued); }
+function renderStock() {
+  let rows = db.stock.slice();
+  rows.sort((a,b)=>{
+    if(stockSort==="site") return (a.site||"").localeCompare(b.site||"") || (a.item||"").localeCompare(b.item||"");
+    if(stockSort==="category") return (a.category||"").localeCompare(b.category||"") || (a.item||"").localeCompare(b.item||"");
+    return (a.item||"").localeCompare(b.item||"") || (a.site||"").localeCompare(b.site||"");
+  });
+  const value=rows.reduce((s,r)=>s+stockBalance(r)*num(r.unitCost),0);
+  const materials=rows.filter(r=>r.category==="Material").length;
+  const tools=rows.filter(r=>r.category==="Tools").length;
+  return `${header("Stock register","Track construction materials and tools by site, quantity, reorder level and unit cost.")}
+    <div class="kpi-grid">
+      ${kpi("Stock lines",fmt(rows.length,0),"Unique item/site registers","▤")}
+      ${kpi("Materials",fmt(materials,0),"Material register lines","▧")}
+      ${kpi("Tools",fmt(tools,0),"Tool register lines","⚒")}
+      ${kpi("Estimated stock value",money(value),"On-hand quantity × unit cost","₹")}
+    </div>
+    <section class="card"><div class="card-head"><div><h2>Add or update stock</h2><p>Quantity, reorder level and cost fields start at 0. Existing matching site/item/category lines are updated.</p></div></div>
+      <form id="stockForm"><div class="form-grid">
+        ${fieldText("date","Transaction date",{type:"date",value:todayISO(),required:true})}
+        ${siteField(true)}
+        ${fieldSelect("category","Category",["Material","Tools"],"Material",true)}
+        ${fieldText("item","Material / tool",{required:true,placeholder:"e.g. TMT bar, drill"})}
+        ${fieldText("unit","Unit",{value:"Nos",required:true,placeholder:"kg, bag, m³, Nos"})}
+        ${fieldText("opening","Opening quantity",{type:"number",value:"0",min:"0",step:"0.001"})}
+        ${fieldText("received","Received quantity",{type:"number",value:"0",min:"0",step:"0.001"})}
+        ${fieldText("issued","Issued quantity",{type:"number",value:"0",min:"0",step:"0.001"})}
+        ${fieldText("minimum","Reorder level",{type:"number",value:"0",min:"0",step:"0.001"})}
+        ${fieldText("unitCost","Unit cost (₹)",{type:"number",value:"0",min:"0",step:"0.01"})}
+      </div><div class="form-footer"><span class="form-note">On-hand balance = opening + received − issued.</span>
+        <button class="btn btn-primary" type="submit">＋ Save stock</button></div></form>
+    </section>
+    <section class="card"><div class="card-head"><div><h2>Stock register</h2><p>Sort the register by material, site or category.</p></div>
+      <div class="sort-row"><span class="sort-label">Sort by</span>
+        <div class="segmented">
+          <button class="${stockSort==="material"?"active":""}" data-stock-sort="material">Material</button>
+          <button class="${stockSort==="site"?"active":""}" data-stock-sort="site">Site</button>
+          <button class="${stockSort==="category"?"active":""}" data-stock-sort="category">Category</button>
+        </div></div></div>
+      ${rows.length ? `<div class="table-wrap"><table><thead><tr><th>Material / tool</th><th>Site</th><th>Category</th><th>Unit</th><th>Opening</th><th>Received</th><th>Issued</th><th>Balance</th><th>Reorder level</th><th>Unit cost</th><th>Value</th></tr></thead><tbody>
+        ${rows.map(r=>{
+          const bal=stockBalance(r), low=num(r.minimum)>0 && bal<=num(r.minimum);
+          return `<tr><td class="td-main">${esc(r.item)}</td><td>${esc(r.site)}</td>
+            <td><span class="badge">${esc(r.category)}</span></td><td>${esc(r.unit)}</td>
+            <td class="num-cell">${fmt(r.opening,3)}</td><td class="num-cell">${fmt(r.received,3)}</td>
+            <td class="num-cell">${fmt(r.issued,3)}</td>
+            <td class="num-cell">${low?`<span class="badge badge-amber">${fmt(bal,3)}</span>`:fmt(bal,3)}</td>
+            <td class="num-cell">${fmt(r.minimum,3)}</td><td class="num-cell">${money(r.unitCost)}</td>
+            <td class="num-cell">${money(bal*num(r.unitCost))}</td></tr>`;
+        }).join("")}</tbody></table></div>` : emptyState("No stock lines yet. Add a material or tool above.")}</section>`;
+}
+
+/* M-Book */
+function renderMBook() {
+  const siteValues=uniqueValues(db.mbook.map(r=>r.site));
+  const clientValues=uniqueValues(db.mbook.map(r=>r.client));
+  const values=bookGroup==="project"?siteValues:clientValues;
+  if (bookFilter!=="all" && !values.includes(bookFilter)) bookFilter="all";
+  const filtered=db.mbook.filter(r=>bookFilter==="all" || (bookGroup==="project"?r.site:r.client)===bookFilter)
+    .slice().sort((a,b)=>(b.date||"").localeCompare(a.date||""));
+  const totals={};
+  filtered.forEach(r=>{const unit=r.unit||"—";totals[unit]=(totals[unit]||0)+num(r.quantity);});
+  const groupButtons=`<div class="segmented">
+    <button class="${bookGroup==="project"?"active":""}" data-book-group="project">Project-wise</button>
+    <button class="${bookGroup==="client"?"active":""}" data-book-group="client">Client-wise</button>
+  </div>`;
+  const filterOptions=[{value:"all",label:"All"} , ...values.map(v=>({value:v,label:v}))];
+  return `${header("Measurement Book (M-Book)","Record measured quantities by project/site or client, with dimensions and running abstracts.",groupButtons)}
+    <section class="card"><div class="card-head"><div><h2>New measurement entry</h2><p>Quantity formula: No. × Length × Breadth × Depth/Height. Enter 1 in unused dimensions when using this formula.</p></div></div>
+      <form id="mbookForm"><div class="form-grid">
+        ${fieldText("date","Measurement date",{type:"date",value:todayISO(),required:true})}
+        ${siteField(true)}
+        ${clientField(true)}
+        ${fieldText("bookNo","M-Book number / page",{placeholder:"Optional reference"})}
+        ${fieldText("item","Item description",{required:true,placeholder:"e.g. RCC slab, excavation"})}
+        ${fieldText("unit","Unit",{value:"m³",required:true})}
+        ${fieldText("nos","No.",{type:"number",value:"0",min:"0",step:"0.001"})}
+        ${fieldText("length","Length",{type:"number",value:"0",min:"0",step:"0.001"})}
+        ${fieldText("breadth","Breadth",{type:"number",value:"0",min:"0",step:"0.001"})}
+        ${fieldText("depth","Depth / height",{type:"number",value:"0",min:"0",step:"0.001"})}
+      </div><div class="form-footer"><span class="form-note">All dimension fields start at 0. Quantity is calculated when saved.</span>
+        <button class="btn btn-primary" type="submit">＋ Save measurement</button></div></form>
+    </section>
+    <section class="card"><div class="tabs-row"><div><h2>M-Book register</h2><p class="form-note">Choose a project-wise or client-wise register and filter it.</p></div>
+      ${fieldSelect("bookFilter","Filter",filterOptions,bookFilter,false,"bookFilter")}
+    </div>
+    <div class="period-summary" style="margin-top:14px">
+      <div class="summary-chip"><span>Measurement entries</span><strong>${fmt(filtered.length,0)}</strong></div>
+      <div class="summary-chip" style="grid-column:span 2"><span>Quantity abstract by unit</span>
+        <strong>${Object.keys(totals).length?Object.entries(totals).map(([u,q])=>`${fmt(q,3)} ${esc(u)}`).join(" · "):"0"}</strong></div>
+    </div>
+    ${filtered.length ? `<div class="table-wrap"><table><thead><tr><th>Date</th><th>M-Book ref.</th><th>Project / site</th><th>Client</th><th>Item description</th><th>Dimensions (No × L × B × D)</th><th>Quantity</th></tr></thead><tbody>
+      ${filtered.map(r=>`<tr><td>${dateLabel(r.date)}</td><td>${esc(r.bookNo||"—")}</td>
+        <td class="td-main">${esc(r.site)}</td><td>${esc(r.client)}</td><td>${esc(r.item)}</td>
+        <td class="num-cell">${fmt(r.nos,3)} × ${fmt(r.length,3)} × ${fmt(r.breadth,3)} × ${fmt(r.depth,3)}</td>
+        <td class="num-cell">${fmt(r.quantity,3)} ${esc(r.unit)}</td></tr>`).join("")}
+    </tbody></table></div>`:emptyState("No measurements in this M-Book view yet.")}</section>`;
+}
+
+/* Civil calculator */
+const MIXES = {
+  M10:{label:"M10 · 1:3:6",cement:1,sand:3,aggregate:6},
+  M15:{label:"M15 · 1:2:4",cement:1,sand:2,aggregate:4},
+  M20:{label:"M20 · 1:1.5:3",cement:1,sand:1.5,aggregate:3}
+};
+function renderCivilResult() {
+  if (!civilResult) return `<div class="empty-state">Enter dimensions and calculate to see an estimate.</div>`;
+  if (civilResult.type==="concrete") {
+    const r=civilResult;
+    return `<div class="result-box"><h3>Concrete quantity estimate · ${esc(r.mix)}</h3>
+      <div class="result-main">${fmt(r.wet,3)} m³</div><div class="result-caption">Wet concrete volume</div>
+      <div class="result-list">
+        <div class="result-item"><span>Approx. cement</span><strong>${fmt(r.bags,2)} bags · ${fmt(r.bags*50,1)} kg</strong></div>
+        <div class="result-item"><span>Approx. sand</span><strong>${fmt(r.sand,3)} m³</strong></div>
+        <div class="result-item"><span>Approx. coarse aggregate</span><strong>${fmt(r.aggregate,3)} m³</strong></div>
+        <div class="result-item"><span>Dry volume allowance</span><strong>${fmt(r.dry,3)} m³</strong></div>
+      </div></div>`;
+  }
+  if (civilResult.type==="rebar") {
+    const r=civilResult;
+    return `<div class="result-box"><h3>Reinforcement bar weight estimate</h3>
+      <div class="result-main">${fmt(r.total,2)} kg</div><div class="result-caption">Approximate total weight</div>
+      <div class="result-list">
+        <div class="result-item"><span>Approx. unit weight</span><strong>${fmt(r.perM,4)} kg/m</strong></div>
+        <div class="result-item"><span>Total bar length</span><strong>${fmt(r.length*r.bars,2)} m</strong></div>
+        <div class="result-item"><span>Diameter</span><strong>${fmt(r.diameter,1)} mm</strong></div>
+        <div class="result-item"><span>Number of bars</span><strong>${fmt(r.bars,0)}</strong></div>
+      </div></div>`;
+  }
+  const r=civilResult;
+  return `<div class="result-box"><h3>Brickwork estimate</h3>
+    <div class="result-main">${fmt(r.volume,3)} m³</div><div class="result-caption">Wall volume before deducting openings</div>
+    <div class="result-list">
+      <div class="result-item"><span>Approx. modular bricks</span><strong>${fmt(r.bricks,0)} Nos</strong></div>
+      <div class="result-item"><span>Estimate basis</span><strong>About 500 bricks / m³</strong></div>
+    </div></div>`;
+}
+function renderCalculator() {
+  const tools=[["concrete","Concrete"],["rebar","Rebar weight"],["brick","Brickwork"]];
+  const tabs=`<div class="segmented">${tools.map(([key,label])=>
+    `<button class="${calcTool===key?"active":""}" data-calc-tool="${key}">${label}</button>`).join("")}</div>`;
+  let form="";
+  if (calcTool==="concrete") {
+    const x=civilInputs.concrete;
+    form=`<form id="civilForm"><div class="form-grid">
+      ${fieldText("length","Length (m)",{type:"number",value:x.length,min:"0",step:"0.001"})}
+      ${fieldText("width","Width (m)",{type:"number",value:x.width,min:"0",step:"0.001"})}
+      ${fieldText("depth","Depth / thickness (m)",{type:"number",value:x.depth,min:"0",step:"0.001"})}
+      ${fieldSelect("mix","Nominal concrete mix",Object.entries(MIXES).map(([v,o])=>({value:v,label:o.label})),x.mix,true)}
+    </div><div class="form-footer"><span class="form-note">Nominal mix estimator for M10, M15 and M20.</span>
+      <button class="btn btn-primary" type="submit">Calculate concrete</button></div></form>`;
+  } else if (calcTool==="rebar") {
+    const x=civilInputs.rebar;
+    form=`<form id="civilForm"><div class="form-grid">
+      ${fieldText("diameter","Bar diameter (mm)",{type:"number",value:x.diameter,min:"0",step:"0.1"})}
+      ${fieldText("length","Length of each bar (m)",{type:"number",value:x.length,min:"0",step:"0.001"})}
+      ${fieldText("bars","Number of bars",{type:"number",value:x.bars,min:"0",step:"1"})}
+    </div><div class="form-footer"><span class="form-note">Approximate site formula: weight per metre ≈ diameter² / 162 kg/m.</span>
+      <button class="btn btn-primary" type="submit">Calculate bar weight</button></div></form>`;
+  } else {
+    const x=civilInputs.brick;
+    form=`<form id="civilForm"><div class="form-grid">
+      ${fieldText("length","Wall length (m)",{type:"number",value:x.length,min:"0",step:"0.001"})}
+      ${fieldText("height","Wall height (m)",{type:"number",value:x.height,min:"0",step:"0.001"})}
+      ${fieldText("thickness","Wall thickness (m)",{type:"number",value:x.thickness,min:"0",step:"0.001"})}
+    </div><div class="form-footer"><span class="form-note">Approximate modular brick quantity; openings are not deducted.</span>
+      <button class="btn btn-primary" type="submit">Calculate brickwork</button></div></form>`;
+  }
+  return `${header("Civil engineering calculator","Common site quantity estimators using metric units and Indian construction practice.")}
+    <div class="notice"><strong>Estimator only:</strong> nominal concrete proportions shown are M10 (1:3:6), M15 (1:2:4) and M20 (1:1.5:3). Use an approved design mix where required; M25 and above should be design-mix concrete. Verify current applicable IS codes and project specifications with the responsible engineer.</div>
+    <section class="card"><div class="card-head"><div><h2>Choose a calculator</h2><p>Unit converter and right-angle marking are separate tools in the navigation.</p></div>${tabs}</div>
+      ${form}</section>
+    <section class="card"><div class="card-head"><div><h2>Calculation result</h2><p>Approximate quantities for planning and estimation.</p></div></div>
+      ${renderCivilResult()}</section>
+    <p class="footer-note">Concrete material estimates use an approximate dry-volume factor of 1.54 and a 50 kg cement bag volume of about 0.0347 m³. Actual yield, wastage, moisture and approved mix design can change quantities. This tool is not a structural design or code-compliance checker.</p>`;
+}
+
+/* Unit converter */
+const UNIT_GROUPS = {
+  length:[
+    {value:"mm",label:"Millimetre (mm)",factor:.001},{value:"cm",label:"Centimetre (cm)",factor:.01},
+    {value:"m",label:"Metre (m)",factor:1},{value:"km",label:"Kilometre (km)",factor:1000},
+    {value:"in",label:"Inch (in)",factor:.0254},{value:"ft",label:"Foot (ft)",factor:.3048},
+    {value:"yd",label:"Yard (yd)",factor:.9144}
+  ],
+  area:[
+    {value:"mm2",label:"Square millimetre (mm²)",factor:.000001},
+    {value:"cm2",label:"Square centimetre (cm²)",factor:.0001},
+    {value:"m2",label:"Square metre (m²)",factor:1},
+    {value:"ft2",label:"Square foot (ft²)",factor:.09290304},
+    {value:"yd2",label:"Square yard (yd²)",factor:.83612736},
+    {value:"ha",label:"Hectare (ha)",factor:10000},
+    {value:"acre",label:"Acre",factor:4046.8564224}
+  ],
+  volume:[
+    {value:"cm3",label:"Cubic centimetre (cm³)",factor:.000001},
+    {value:"L",label:"Litre (L)",factor:.001},
+    {value:"m3",label:"Cubic metre (m³)",factor:1},
+    {value:"ft3",label:"Cubic foot (ft³)",factor:.0283168466},
+    {value:"yd3",label:"Cubic yard (yd³)",factor:.764554858},
+    {value:"usgal",label:"US gallon",factor:.0037854118}
+  ],
+  mass:[
+    {value:"g",label:"Gram (g)",factor:.001},{value:"kg",label:"Kilogram (kg)",factor:1},
+    {value:"tonne",label:"Metric tonne",factor:1000},{value:"lb",label:"Pound (lb)",factor:.45359237}
+  ],
+  pressure:[
+    {value:"Pa",label:"Pascal (Pa)",factor:1},{value:"kPa",label:"Kilopascal (kPa)",factor:1000},
+    {value:"MPa",label:"Megapascal (MPa)",factor:1000000},{value:"bar",label:"Bar",factor:100000},
+    {value:"psi",label:"Pound per square inch (psi)",factor:6894.757},
+    {value:"kgcm2",label:"kgf/cm²",factor:98066.5}
+  ],
+  temperature:[
+    {value:"C",label:"Celsius (°C)"},{value:"F",label:"Fahrenheit (°F)"},{value:"K",label:"Kelvin (K)"}
+  ]
+};
+function convertUnits(value,from,to,dimension) {
+  if (dimension==="temperature") {
+    let c=value;
+    if (from==="F") c=(value-32)*5/9;
+    if (from==="K") c=value-273.15;
+    if (to==="F") return c*9/5+32;
+    if (to==="K") return c+273.15;
+    return c;
+  }
+  const units=UNIT_GROUPS[dimension];
+  const a=units.find(u=>u.value===from), b=units.find(u=>u.value===to);
+  return a && b ? value*a.factor/b.factor : 0;
+}
+function renderConverter() {
+  const dimensions=Object.keys(UNIT_GROUPS).map(k=>({value:k,label:k[0].toUpperCase()+k.slice(1)}));
+  const units=UNIT_GROUPS[converterDimension];
+  const from=units.some(u=>u.value===converterFrom)?converterFrom:units[0].value;
+  const to=units.some(u=>u.value===converterTo)?converterTo:units[Math.min(1,units.length-1)].value;
+  const result=converterResult ? `<div class="result-box"><h3>Converted value</h3>
+    <div class="result-main">${fmt(converterResult.value,8)} ${esc(converterResult.toLabel)}</div>
+    <div class="result-caption">${fmt(converterResult.input,8)} ${esc(converterResult.fromLabel)} = ${fmt(converterResult.value,8)} ${esc(converterResult.toLabel)}</div>
+  </div>` : `<div class="empty-state">Enter a value and choose the units to convert.</div>`;
+  return `${header("Unit converter","Convert common civil and construction quantities. This tool is separate from the civil calculator.")}
+    <div class="grid-2">
+      <section class="card"><div class="card-head"><div><h2>Convert units</h2><p>Length, area, volume, mass, pressure and temperature.</p></div></div>
+        <form id="converterForm"><div class="form-grid">
+          ${fieldSelect("dimension","Measurement type",dimensions,converterDimension,true,"converterDimension")}
+          ${fieldText("value","Value",{type:"number",value:converterValue,min:"0",step:"any",required:true})}
+          ${fieldSelect("from","From",units.map(u=>({value:u.value,label:u.label})),from,true,"converterFrom")}
+          ${fieldSelect("to","To",units.map(u=>({value:u.value,label:u.label})),to,true,"converterTo")}
+        </div><div class="form-footer"><span class="form-note">All numeric inputs start at 0.</span>
+          <button class="btn btn-primary" type="submit">Convert</button></div></form>
+      </section>
+      <section class="card"><div class="card-head"><div><h2>Result</h2><p>Conversion output.</p></div></div>${result}</section>
+    </div>`;
+}
+
+/* Right-angle site marking */
+function renderRightAngle() {
+  const result = rightResult ? (rightResult.type==="345"
+    ? `<div class="result-box"><h3>3–4–5 site set-out</h3>
+       <div class="result-main">${fmt(rightResult.a,3)} · ${fmt(rightResult.b,3)} · ${fmt(rightResult.c,3)} ${esc(rightResult.unit)}</div>
+       <div class="result-caption">Mark ${fmt(rightResult.a,3)} ${esc(rightResult.unit)} along the baseline, ${fmt(rightResult.b,3)} ${esc(rightResult.unit)} on the second leg, then adjust until the diagonal measures ${fmt(rightResult.c,3)} ${esc(rightResult.unit)}.</div>
+       <div class="result-list"><div class="result-item"><span>Baseline leg (3 × scale)</span><strong>${fmt(rightResult.a,3)} ${esc(rightResult.unit)}</strong></div>
+       <div class="result-item"><span>Second leg (4 × scale)</span><strong>${fmt(rightResult.b,3)} ${esc(rightResult.unit)}</strong></div>
+       <div class="result-item"><span>Diagonal (5 × scale)</span><strong>${fmt(rightResult.c,3)} ${esc(rightResult.unit)}</strong></div>
+       <div class="result-item"><span>Scale used</span><strong>${fmt(rightResult.scale,3)} ${esc(rightResult.unit)}</strong></div></div></div>`
+    : `<div class="result-box"><h3>Diagonal check</h3><div class="result-main">${fmt(rightResult.expected,3)} ${esc(rightResult.unit)}</div>
+       <div class="result-caption">Expected diagonal for a right angle.</div>
+       <div class="result-list"><div class="result-item"><span>Baseline leg</span><strong>${fmt(rightResult.a,3)} ${esc(rightResult.unit)}</strong></div>
+       <div class="result-item"><span>Second leg</span><strong>${fmt(rightResult.b,3)} ${esc(rightResult.unit)}</strong></div>
+       <div class="result-item"><span>Measured diagonal</span><strong>${rightResult.measured>0?fmt(rightResult.measured,3)+" "+esc(rightResult.unit):"Not entered"}</strong></div>
+       <div class="result-item"><span>Check</span><strong>${rightResult.status}</strong></div></div></div>`)
+    : `<div class="empty-state">Enter your site dimensions to calculate a diagonal or generate 3–4–5 set-out measurements.</div>`;
+  const units=["m","cm","mm","ft"].map(v=>({value:v,label:v}));
+  return `${header("Right-angle marking","A separate manual site set-out tool using the 3–4–5 method and diagonal checks.")}
+    <div class="notice"><strong>On-site method:</strong> establish a baseline, mark the two legs, and adjust the second line until its diagonal matches the calculated value. Use a longer 3–4–5 multiple for better accuracy on larger layouts.</div>
+    <div class="grid-2">
+      <section class="card"><div class="card-head"><div><h2>Calculate a diagonal</h2><p>Use the Pythagorean theorem to check a proposed right-angle set-out.</p></div></div>
+        <form id="rightForm"><div class="form-grid">
+          ${fieldText("a","Baseline leg",{type:"number",value:"0",min:"0",step:"0.001"})}
+          ${fieldText("b","Second leg",{type:"number",value:"0",min:"0",step:"0.001"})}
+          ${fieldText("measured","Measured diagonal (optional)",{type:"number",value:"0",min:"0",step:"0.001"})}
+          ${fieldSelect("unit","Unit",units,rightUnit,true)}
+        </div><div class="form-footer"><span class="form-note">If measured, diagonal is compared with the expected value.</span>
+          <button class="btn btn-primary" type="submit">Calculate diagonal</button></div></form>
+      </section>
+      <section class="card"><div class="card-head"><div><h2>Generate 3–4–5 measurements</h2><p>Choose the scale multiplier to suit the site.</p></div></div>
+        <form id="right345Form"><div class="form-grid">
+          ${fieldText("scale","Scale length",{type:"number",value:"0",min:"0",step:"0.001"})}
+          ${fieldSelect("unit","Unit",units,rightUnit,true)}
+        </div><div class="form-footer"><span class="form-note">For a 1 m scale, mark 3 m, 4 m and 5 m.</span>
+          <button class="btn btn-primary" type="submit">Generate set-out</button></div></form>
+      </section>
+    </div>
+    <section class="card"><div class="card-head"><div><h2>Site marking result</h2><p>Use a tape measure and recheck the baseline before fixing the layout.</p></div></div>${result}</section>`;
+}
+
+/* Directories */
+function renderSettings() {
+  const lists=[
+    ["sites","Sites / projects"],["clients","Clients"],["vendors","Vendors"],["contractors","Contractors / subcontractors"]
+  ];
+  return `${header("Directories & settings","Maintain reusable site, client, vendor and contractor names. Names entered in forms are also added automatically.")}
+    <section class="card"><div class="card-head"><div><h2>Add a directory entry</h2><p>Directory names are available as suggestions in relevant forms.</p></div></div>
+      <form id="directoryForm"><div class="form-grid">
+        ${fieldSelect("kind","Directory",lists.map(([v,l])=>({value:v,label:l})),"sites",true)}
+        ${fieldText("value","Name",{required:true,placeholder:"Enter a site, client, vendor or contractor"})}
+      </div><div class="form-footer"><span class="form-note">Use distinct names for different projects and business partners.</span>
+        <button class="btn btn-primary" type="submit">＋ Add directory entry</button></div></form>
+    </section>
+    <div class="grid-2">${lists.map(([key,label])=>`<section class="card">
+      <div class="card-head"><div><h2>${esc(label)}</h2><p>${fmt(db[key].length,0)} saved</p></div></div>
+      ${db[key].length?`<div class="directory-list">${uniqueValues(db[key]).map(v=>`<span class="directory-item">${esc(v)}</span>`).join("")}</div>`:emptyState(`No ${label.toLowerCase()} added yet.`)}
+    </section>`).join("")}</div>
+    <div class="notice"><strong>Local storage:</strong> application data stays in this browser profile. Use the Backup button to download a JSON copy before changing devices or clearing browser data.</div>`;
+}
+
+/* Saturday labor billings */
+function createSaturdayBillings() {
+  const start=mondayOf(parseISO(attendanceDate));
+  const startISO=toISO(start);
+  const saturday=toISO(addDays(start,5));
+  const end=toISO(addDays(start,6));
+  const weekRows=db.attendance.filter(r=>r.date>=startISO && r.date<=end);
+  const groups=new Map();
+  weekRows.forEach(r=>{
+    const amount=num(r.amount);
+    if (amount<=0) return;
+    const site=(r.site||"Unassigned").trim();
+    const party=(r.contractor||"Direct Labour").trim();
+    const key=site.toLowerCase()+"|"+party.toLowerCase();
+    if (!groups.has(key)) groups.set(key,{site,party,amount:0,roles:new Set()});
+    const g=groups.get(key);g.amount+=amount;
+    if (r.role) g.roles.add(r.role);
+  });
+  let created=0, skipped=0;
+  groups.forEach((g,key)=>{
+    const sourceKey=`labor:${startISO}:${key}`;
+    if (db.accounts.some(a=>a.sourceKey===sourceKey)) { skipped++; return; }
+    db.accounts.push({
+      id:uid(),type:"payable",party:g.party,site:g.site,
+      reference:`LAB-${saturday.replaceAll("-","")}-${created+1}`,
+      date:saturday,dueDate:saturday,amount:g.amount,paid:0,
+      description:`Weekly labor billing (${dateLabel(startISO)}–${dateLabel(end)}). Roles: ${[...g.roles].join(", ")||"Not specified"}`,
+      sourceKey
+    });
+    remember("vendors",g.party);
+    remember("sites",g.site);
+    created++;
+  });
+  saveDatabase();
+  toast(created ? `${created} Saturday labor payable${created===1?"":"s"} created${skipped?`; ${skipped} already existed`:""}.`
+    : skipped ? "Saturday labor billings for this week already exist."
+    : "No positive labor billing found. Enter a rate per shift and attendance first.");
+}
+
+/* Event handling */
+function toast(message) {
+  toastMessage=message;
+  render();
+  setTimeout(()=>{ if(toastMessage===message){toastMessage="";render();} },3000);
+}
+function downloadBackup() {
+  const blob=new Blob([JSON.stringify(db,null,2)],{type:"application/json"});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+  a.href=url;a.download=`buildledger-backup-${todayISO()}.json`;
+  document.body.appendChild(a);a.click();a.remove();
+  URL.revokeObjectURL(url);
+}
+function handleSubmit(event) {
+  const form=event.target.closest("form");
+  if (!form) return;
+  const id=form.id;
+  if (!id) return;
+  event.preventDefault();
+  const fd=new FormData(form);
+
+  if (id==="attendanceForm") {
+    const mode=attendanceMode;
+    const role=String(fd.get("role")||"");
+    const workerCount=mode==="name" ? 1 : num(fd.get("workers"));
+    const shifts=num(fd.get("shifts")), rate=num(fd.get("rate"));
+    const site=String(fd.get("site")||"").trim();
+    const contractor=String(fd.get("contractor")||"").trim();
+    const row={
+      id:uid(),date:String(fd.get("date")),site,mode,
+      role,contractor,
+      name:mode==="name"?String(fd.get("name")||"").trim():"",
+      workers:workerCount,shifts,rate,amount:workerCount*shifts*rate
+    };
+    db.attendance.push(row);remember("sites",site);remember("contractors",contractor);
+    saveDatabase();toast("Attendance entry saved.");return;
+  }
+  if (id==="roleForm") {
+    const role=String(fd.get("roleName")||"").trim();
+    if (!role) return;
+    if (db.roles.some(r=>r.toLowerCase()===role.toLowerCase())) {
+      toast("That role already exists.");return;
+    }
+    db.roles.push(role);db.roleRates[role]=num(fd.get("standardRate"));
+    saveDatabase();toast(`Role “${role}” added.`);return;
+  }
+  if (id==="ratesForm") {
+    db.roles.forEach((r,i)=>db.roleRates[r]=num(fd.get(`rate_${i}`)));
+    saveDatabase();toast("Standard role rates saved.");return;
+  }
+  if (id==="progressForm") {
+    const site=String(fd.get("site")||"").trim(), client=String(fd.get("client")||"").trim();
+    db.progress.push({
+      id:uid(),date:String(fd.get("date")),site,client,
+      activity:String(fd.get("activity")||"").trim(),role:String(fd.get("role")||""),
+      unit:String(fd.get("unit")||"m³"),quantity:num(fd.get("quantity")),
+      target:num(fd.get("target")),workers:num(fd.get("workers")),
+      notes:String(fd.get("notes")||"").trim()
+    });
+    remember("sites",site);remember("clients",client);
+    saveDatabase();toast("Daily progress report saved.");return;
+  }
+  if (id==="expenseForm") {
+    const site=String(fd.get("site")||"").trim(),client=String(fd.get("client")||"").trim();
+    const vendor=String(fd.get("vendor")||"").trim();
+    db.expenses.push({
+      id:uid(),date:String(fd.get("date")),site,client,vendor,
+      category:String(fd.get("category")),amount:num(fd.get("amount")),
+      description:String(fd.get("description")||"").trim()
+    });
+    remember("sites",site);remember("clients",client);remember("vendors",vendor);
+    saveDatabase();toast("Expense saved.");return;
+  }
+  if (id==="accountForm") {
+    const party=String(fd.get("party")||"").trim(),site=String(fd.get("site")||"").trim();
+    db.accounts.push({
+      id:uid(),type:accountTab,party,site,reference:String(fd.get("reference")||"").trim(),
+      date:String(fd.get("date")),dueDate:String(fd.get("dueDate")),
+      amount:num(fd.get("amount")),paid:0,description:String(fd.get("description")||"").trim()
+    });
+    remember(accountTab==="receivable"?"clients":"vendors",party);remember("sites",site);
+    saveDatabase();toast(accountTab==="receivable"?"Receivable added.":"Payable added.");return;
+  }
+  if (id==="stockForm") {
+    const site=String(fd.get("site")||"").trim(),item=String(fd.get("item")||"").trim();
+    const category=String(fd.get("category")),unit=String(fd.get("unit")||"Nos").trim();
+    const opening=num(fd.get("opening")),received=num(fd.get("received")),issued=num(fd.get("issued"));
+    const existing=db.stock.find(r=>r.site.toLowerCase()===site.toLowerCase()
+      && r.item.toLowerCase()===item.toLowerCase()
+      && r.category===category && r.unit.toLowerCase()===unit.toLowerCase());
+    if (existing) {
+      existing.opening=num(existing.opening)+opening;
+      existing.received=num(existing.received)+received;
+      existing.issued=num(existing.issued)+issued;
+      existing.minimum=num(fd.get("minimum"));
+      if (num(fd.get("unitCost"))>0) existing.unitCost=num(fd.get("unitCost"));
+      existing.date=String(fd.get("date"));
+    } else {
+      db.stock.push({
+        id:uid(),date:String(fd.get("date")),site,category,item,unit,
+        opening,received,issued,minimum:num(fd.get("minimum")),unitCost:num(fd.get("unitCost"))
+      });
+    }
+    remember("sites",site);saveDatabase();toast("Stock register updated.");return;
+  }
+  if (id==="mbookForm") {
+    const site=String(fd.get("site")||"").trim(),client=String(fd.get("client")||"").trim();
+    const nos=num(fd.get("nos")),length=num(fd.get("length")),breadth=num(fd.get("breadth")),depth=num(fd.get("depth"));
+    db.mbook.push({
+      id:uid(),date:String(fd.get("date")),site,client,
+      bookNo:String(fd.get("bookNo")||"").trim(),item:String(fd.get("item")||"").trim(),
+      unit:String(fd.get("unit")||"m³").trim(),nos,length,breadth,depth,
+      quantity:nos*length*breadth*depth
+    });
+    remember("sites",site);remember("clients",client);saveDatabase();toast("M-Book measurement saved.");return;
+  }
+  if (id==="civilForm") {
+    if (calcTool==="concrete") {
+      const x={length:String(fd.get("length")),width:String(fd.get("width")),depth:String(fd.get("depth")),mix:String(fd.get("mix"))};
+      civilInputs.concrete=x;
+      const wet=num(x.length)*num(x.width)*num(x.depth);
+      const dry=wet*1.54,mix=MIXES[x.mix]||MIXES.M20;
+      const total=mix.cement+mix.sand+mix.aggregate;
+      const cementVolume=dry*mix.cement/total;
+      const bags=cementVolume/.0347;
+      civilResult={type:"concrete",mix:x.mix,wet,dry,bags,
+        sand:dry*mix.sand/total,aggregate:dry*mix.aggregate/total};
+    } else if (calcTool==="rebar") {
+      const x={diameter:String(fd.get("diameter")),length:String(fd.get("length")),bars:String(fd.get("bars"))};
+      civilInputs.rebar=x;
+      const diameter=num(x.diameter),length=num(x.length),bars=num(x.bars),perM=diameter*diameter/162;
+      civilResult={type:"rebar",diameter,length,bars,perM,total:perM*length*bars};
+    } else {
+      const x={length:String(fd.get("length")),height:String(fd.get("height")),thickness:String(fd.get("thickness"))};
+      civilInputs.brick=x;
+      const volume=num(x.length)*num(x.height)*num(x.thickness);
+      civilResult={type:"brick",volume,bricks:Math.ceil(volume*500)};
+    }
+    render();return;
+  }
+  if (id==="converterForm") {
+    converterDimension=String(fd.get("dimension"));
+    converterFrom=String(fd.get("from"));converterTo=String(fd.get("to"));
+    converterValue=String(fd.get("value"));
+    const units=UNIT_GROUPS[converterDimension];
+    const fromLabel=(units.find(u=>u.value===converterFrom)||{}).label||converterFrom;
+    const toLabel=(units.find(u=>u.value===converterTo)||{}).label||converterTo;
+    converterResult={
+      input:num(converterValue),value:convertUnits(num(converterValue),converterFrom,converterTo,converterDimension),
+      fromLabel,toLabel
+    };
+    render();return;
+  }
+  if (id==="rightForm") {
+    const a=num(fd.get("a")),b=num(fd.get("b")),measured=num(fd.get("measured"));
+    rightUnit=String(fd.get("unit"));
+    const expected=Math.sqrt(a*a+b*b);
+    let status="Enter a measured diagonal to compare.";
+    if (measured>0) {
+      const diff=measured-expected,tolerance=Math.max(.01,expected*.005);
+      status=Math.abs(diff)<=tolerance ? "Within approximate 0.5% / 10 mm tolerance"
+        : `${diff>0?"Longer":"Shorter"} than expected by ${fmt(Math.abs(diff),3)} ${rightUnit}`;
+    }
+    rightResult={type:"diagonal",a,b,measured,expected,unit:rightUnit,status};
+    render();return;
+  }
+  if (id==="right345Form") {
+    const scale=num(fd.get("scale"));rightUnit=String(fd.get("unit"));
+    rightResult={type:"345",scale,a:3*scale,b:4*scale,c:5*scale,unit:rightUnit};
+    render();return;
+  }
+  if (id==="directoryForm") {
+    const kind=String(fd.get("kind")),value=String(fd.get("value")||"").trim();
+    if (Array.isArray(db[kind])) remember(kind,value);
+    saveDatabase();toast("Directory entry saved.");return;
+  }
+}
+app.addEventListener("submit",handleSubmit);
+
+app.addEventListener("click",event=>{
+  const view=event.target.closest("[data-view]");
+  if(view) { activeView=view.dataset.view;render();return; }
+  const attMode=event.target.closest("[data-att-mode]");
+  if(attMode) { attendanceMode=attMode.dataset.attMode;render();return; }
+  const calendar=event.target.closest("[data-calendar]");
+  if(calendar) { attendanceCalendar=calendar.dataset.calendar;render();return; }
+  const attDate=event.target.closest("[data-att-date]");
+  if(attDate) { attendanceDate=attDate.dataset.attDate;render();return; }
+  const account=event.target.closest("[data-account-tab]");
+  if(account) { accountTab=account.dataset.accountTab;render();return; }
+  const sort=event.target.closest("[data-stock-sort]");
+  if(sort) { stockSort=sort.dataset.stockSort;render();return; }
+  const group=event.target.closest("[data-book-group]");
+  if(group) { bookGroup=group.dataset.bookGroup;bookFilter="all";render();return; }
+  const calc=event.target.closest("[data-calc-tool]");
+  if(calc) { calcTool=calc.dataset.calcTool;civilResult=null;render();return; }
+  const action=event.target.closest("[data-action]");
+  if(!action) return;
+  if(action.dataset.action==="backup") { downloadBackup();return; }
+  if(action.dataset.action==="create-billings") { createSaturdayBillings();return; }
+  if(action.dataset.action==="settle-account") {
+    const a=db.accounts.find(x=>x.id===action.dataset.id);
+    if(!a) return;
+    const balance=accountBalance(a);
+    const input=prompt(`Enter settlement amount (maximum ${money(balance)}):`,balance.toFixed(2));
+    if(input===null) return;
+    const amount=num(input);
+    if(amount<=0) { toast("Enter a settlement amount greater than 0.");return; }
+    a.paid=Math.min(num(a.amount),num(a.paid)+amount);
+    saveDatabase();toast("Settlement recorded.");return;
+  }
+});
+
+app.addEventListener("change",event=>{
+  const el=event.target;
+  if(el.id==="attendanceDate") { attendanceDate=el.value||todayISO();render();return; }
+  if(el.id==="attRole") {
+    const rate=document.getElementById("attRate");
+    if(rate) rate.value=db.roleRates[el.value]||0;
+    return;
+  }
+  if(el.id==="converterDimension") {
+    converterDimension=el.value;
+    const units=UNIT_GROUPS[converterDimension];
+    converterFrom=units[0].value;
+    converterTo=units[Math.min(1,units.length-1)].value;
+    converterResult=null;
+    render();return;
+  }
+  if(el.id==="converterFrom") { converterFrom=el.value;return; }
+  if(el.id==="converterTo") { converterTo=el.value;return; }
+  if(el.id==="bookFilter") { bookFilter=el.value;render();return; }
+});
+app.addEventListener("input",event=>{
+  if (!event.target.matches("[data-att-live]")) return;
+  const form=document.getElementById("attendanceForm");
+  if (!form) return;
+  const workers=attendanceMode==="name"?1:num(form.elements.workers?.value);
+  const shifts=num(form.elements.shifts?.value);
+  const rate=num(form.elements.rate?.value);
+  const output=document.getElementById("attendanceEstimate");
+  if(output) output.textContent=money(workers*shifts*rate);
+});
+
+render();
+</script>
+</body>
+</html>
