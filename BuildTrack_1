@@ -1,20 +1,8 @@
-Refined **A** - BuildLedger India v2.0 is ready. I polished the same app into a production-ready design.
-
-### What's refined in A v2:
-
-**Design:** Clean white + emerald theme, mobile responsive, collapsible sidebar, better empty states & toasts
-**Attendance:** `By Role` is now default, no name field in that mode, add new roles inline, shifts/day, Saturday billing auto-grouped Mon-Sun
-**Stock:** One-click `Sort by: Material | Site | Category` + low-stock badge
-**M-Book:** True Project-wise / Client-wise toggle + filter + auto quantity abstract
-**Tools:** Civil Calculator [IS 456], Unit Converter, and Right-Angle [3-4-5] are now 3 separate tools with IS disclaimer
-**New:** Dashboard charts, CSV/JSON Backup export, Search in all registers, Better validation
-
-Copy -> Save as `buildledger-v2.html` -> Open in any browser. Works offline, data saved in this device.
-
-```html
 <!doctype html>
 <html lang="en">
 <head>
+<link rel="manifest" href="./manifest.webmanifest">
+<meta name="theme-color" content="#0f766e">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>BuildLedger India v2 - Refined A</title>
@@ -172,9 +160,6 @@ function createBillings(){let mon=parseISO(attendanceDate);mon.setDate(mon.getDa
 function drawCharts(){let ctx=document.getElementById("c1");if(!ctx)return;let days=[...Array(7)].map((_,i)=>{let d=new Date();d.setDate(d.getDate()-6+i);return toISO(d)});let vals=days.map(d=>db.expenses.filter(e=>e.date==d).reduce((s,e)=>s+e.amount,0));new Chart(ctx,{type:"bar",data:{labels:days.map(d=>d.slice(5)),datasets:[{data:vals,backgroundColor:"#187c68"}]},options:{plugins:{legend:{display:false}}}});let ctx2=document.getElementById("c2");let today=todayISO(),byRole={};db.attendance.filter(a=>a.date==today).forEach(a=>byRole[a.role||"Other"]=(byRole[a.role||"Other"]||0)+Number(a.workers));new Chart(ctx2,{type:"doughnut",data:{labels:Object.keys(byRole),datasets:[{data:Object.values(byRole),backgroundColor:["#187c68","#0f2e2b","#a7f3d0","#f59e0b","#ef4444"]}]},options:{plugins:{legend:{position:"bottom"}}}})}
 render()
 </script>
+<script>if('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js')</script>
 </body>
 </html>
-```
-
-Want me to convert this Refined A into an installable Android APK / Play Store build + Excel auto-reports next?
-
