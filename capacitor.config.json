@@ -1,0 +1,9 @@
+{
+  "appId": "com.buildledger.india",
+  "appName": "BuildLedger India",
+  "webDir": ".",
+  "server": { "androidScheme": "https" },
+  "plugins": {
+    "SplashScreen": { "launchShowDuration": 1500 }
+  }
+}
