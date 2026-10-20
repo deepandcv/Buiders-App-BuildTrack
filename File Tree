@@ -1,0 +1,9 @@
+buildledger-v3/
+├── index.html              <- Your v3 Pro app [paste from previous message]
+├── package.json
+├── capacitor.config.json
+├── vite.config.js
+├── manifest.webmanifest
+├── sw.js
+├── README.md
+└── .github/workflows/android-build.yml
